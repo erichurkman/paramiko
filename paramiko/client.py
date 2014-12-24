@@ -431,7 +431,7 @@ class SSHClient (ClosingContextManager):
             try:
                 self._log(DEBUG, 'Trying SSH key %s' % hexlify(pkey.get_fingerprint()))
                 allowed_types = self._transport.auth_publickey(username, pkey)
-                two_factor = ('password' in allowed_types)
+                two_factor = ('password' in allowed_types or 'keyboard-interactive' in allowed_types)
                 if not two_factor:
                     return
             except SSHException as e:
@@ -444,7 +444,7 @@ class SSHClient (ClosingContextManager):
                         key = pkey_class.from_private_key_file(key_filename, password)
                         self._log(DEBUG, 'Trying key %s from %s' % (hexlify(key.get_fingerprint()), key_filename))
                         self._transport.auth_publickey(username, key)
-                        two_factor = ('password' in allowed_types)
+                        two_factor = ('password' in allowed_types or 'keyboard-interactive' in allowed_types)
                         if not two_factor:
                             return
                         break
@@ -460,7 +460,7 @@ class SSHClient (ClosingContextManager):
                     self._log(DEBUG, 'Trying SSH agent key %s' % hexlify(key.get_fingerprint()))
                     # for 2-factor auth a successfully auth'd key password will be an allowed auth type
                     allowed_types = self._transport.auth_publickey(username, key)
-                    two_factor = ('password' in allowed_types)
+                    two_factor = ('password' in allowed_types or 'keyboard-interactive' in allowed_types)
                     if not two_factor:
                         return
                     break
